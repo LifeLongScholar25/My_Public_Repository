@@ -141,7 +141,7 @@ class NumMatrix():
         self._matrix = identity_matrix
     
     def mat_entry_at(self,i_val,j_val):
-        '''Allows for normal mathematical index reference to 
+        '''Allows for normal matrix index reference to 
             matrix entries.'''
         return self._matrix[i_val-1][j_val-1]
     
@@ -394,3 +394,8 @@ class NumMatrix():
                 raise RuntimeError ("The two matrices do not have the appropriate dimensions.")
         else:
             raise TypeError ("Matrix product only works between two NumMatrix objects.")
+
+    def set_entry_to(self,i_val,j_val,new_entry):
+        """Takes a new entry and sets the value at position (i_val,j_val) 
+        to the new entry. Works in typical matrix indexing manner."""
+        self._matrix[i_val-1][j_val-1] = new_entry
