@@ -60,6 +60,7 @@ class NumVector:
 
     def __rmul__(self,other):
         return self.__mul__(other)
+
     def __sub__(self,other):
         pass
         if isinstance(self,NumVector) and isinstance(other,NumVector):
