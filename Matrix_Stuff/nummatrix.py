@@ -143,7 +143,14 @@ class NumMatrix():
     def mat_entry_at(self,i_val,j_val):
         '''Allows for normal matrix index reference to 
             matrix entries.'''
-        return self._matrix[i_val-1][j_val-1]
+        num_rows,num_cols = self.return_mat_dim()
+        if i_val > 0 and j_val > 0:
+            if i_val <= num_rows and j_val <= num_cols:
+                return self._matrix[i_val-1][j_val-1]
+            else:
+                raise IndexError ("Indices out of range for matrix")
+        else:
+            raise IndexError ("Indices out of range for matrix")
     
     def is_square_matrix(self):
         '''Function that returns the corresponding boolean to
@@ -398,4 +405,12 @@ class NumMatrix():
     def set_entry_to(self,i_val,j_val,new_entry):
         """Takes a new entry and sets the value at position (i_val,j_val) 
         to the new entry. Works in typical matrix indexing manner."""
-        self._matrix[i_val-1][j_val-1] = new_entry
+        num_cols,num_rows = self.return_mat_dim()
+        if i_val > 0 and j_val > 0:
+            if i_val < num_cols and j_val < num_rows:
+                self._matrix[i_val-1][j_val-1] = new_entry
+            else:
+                raise IndexError ("Indices out of range for matrix")
+        else:
+            raise IndexError ("Indices out of range for matrix")
+        

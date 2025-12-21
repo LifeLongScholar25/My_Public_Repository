@@ -17,7 +17,7 @@ class NumVector:
         self._vector = []
         self._row_dim = None
         self._col_dim = None
-    #Completed
+
     def __add__(self,other):
         if isinstance(other,NumVector):
             if self.return_dim() == other.return_dim():
@@ -37,7 +37,7 @@ class NumVector:
                 raise RuntimeError ("Vectors do not have the same dimensions.")
         else:
             raise TypeError ("Can only add vector objects.")
-    #Completed
+
     def __mul__(self,other):
         if isinstance(other,(int,float)):
             row_N,col_N = self.return_dim()
@@ -57,17 +57,16 @@ class NumVector:
                 return scaled_vector
         else:
             raise TypeError ("Can only multiply scalars against matrices with this operator.")
-    #Completed
+
     def __rmul__(self,other):
         return self.__mul__(other)
-    #Completed
     def __sub__(self,other):
         pass
         if isinstance(self,NumVector) and isinstance(other,NumVector):
             return self + (-1 * other)
         else:
             raise TypeError ("Can only subtract vector objects.")
-    #Completed
+
     def user_build_vector(self):
         """Allows the user to build a matrix through individual value
             assignment."""
@@ -86,7 +85,7 @@ class NumVector:
                     row_elem.append(entry) #row_lists
         else:
             raise RuntimeError ("Vectors can only be row or column vectors.")
-    #Completed  
+ 
     def build_vector(self,row_count:int,col_count:int,build_list:list):
         """Takes in a list. Checks if the dimensionality matches
             with that of the desired vector. If there is a match,
@@ -108,13 +107,13 @@ class NumVector:
                 "vector dimensionality.")
         else:
             raise RuntimeError ("Vectors can only be row or column vectors.")
-    #Completed
+
     def return_dim(self):
         """Returns vector dimensions. #Row x #Col"""
         num_rows = self._row_dim
         num_cols = self._col_dim
         return [num_rows,num_cols]
-    #Completed
+
     def vec_entry_at(self,i_val,j_val):
         """Allows for retrieval at typical vector entries."""
         row_N,col_N = self.return_dim()
@@ -125,7 +124,7 @@ class NumVector:
                 return self._vector[0][j_val-1]
             else: #Column Vector
                 return self._vector[i_val-1][0]
-    #Completed
+
     def is_row_vector(self):
         """Boolean function the returns true if vector is a row vector and
             returns False if it isn't a row vector."""
@@ -133,7 +132,7 @@ class NumVector:
             return True
         else:
             return False
-    #Completed
+
     def is_col_vector(self):
         """Boolean function the returns true if vector is a column vector and
             returns False if it isn't a column vector."""
@@ -141,7 +140,7 @@ class NumVector:
             return True
         else:
             return False
-    #Completed
+
     def vector_transpose(self):
         '''Method performs a vector transpose on vector objects.'''
         #Row Vector --> Column Vector
@@ -168,7 +167,7 @@ class NumVector:
             hold = self._row_dim
             self._row_dim = self._col_dim
             self._col_dim = hold
-    #Completed
+
     def dot_product(self,other):
         '''Performs a dot product between a row and column vector.
             Exclusively coded for that form.'''
