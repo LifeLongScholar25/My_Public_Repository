@@ -1,24 +1,24 @@
 '''
 Author: Drake Galvan Smith
 DOC: 12.18.2025
-Last Modified: 12.21.2025
-Purpose: To create a numerical matrix class that is a child
-    class to the NumVector Class.
+Last Modified: 1.22.2026
+Purpose: To create a numerical matrix class.
 '''
 
 #nummatrix.py
 
 from numvector import NumVector
+import list_fxns as lf
 
 class NumMatrix():
     """A Numerical Matrix class that offers many different
         matrix methods and operations."""
     
     def __init__(self):
-        '''Inherits the NumVector class, and initializes the NumMatrix object.'''
+        '''Initializes the NumMatrix object.'''
         self._matrix = []
         self._row_dim = None
-        self._row_dim = None
+        self._col_dim = None
     
     def __add__(self,other):
         if isinstance(other,NumMatrix):
@@ -43,6 +43,7 @@ class NumMatrix():
         return self.__add__(other)
     
     def __mul__(self,other):
+        """Method for multiplying matrices and scalars together."""
         if isinstance(self,NumMatrix) and isinstance(other,(int,float)):
             row_N,col_N = self.return_mat_dim()
             scaled_matrix = NumMatrix()
@@ -71,13 +72,36 @@ class NumMatrix():
         num_rows = self._row_dim
         total_string = ""
         for val in range(0,num_rows):
-            if val == 0:
-                total_string += "[" + str(self._matrix[val]) + "\n"
-            elif val == (num_rows-1):
-                total_string += " " + str(self._matrix[val]) + "]\n"
-            else:
-                total_string += " " + str(self._matrix[val]) + "\n" #Accesses rows between 1 and n.
+            if num_rows == 1:
+                total_string += "[" + str(self._matrix[val]) + "]\n"
+            else: #More than one row.
+                if val == 0:
+                    total_string += "[" + str(self._matrix[val]) + "\n"
+                elif val == (num_rows-1):
+                    total_string += " " + str(self._matrix[val]) + "]\n"
+                else:
+                    total_string += " " + str(self._matrix[val]) + "\n" #Accesses rows between 1 and n.
         return total_string
+    
+    def __eq__(self,other):
+        """Returns the boolean that says whether two matrices are the same or not."""
+        if isinstance(other,NumMatrix):
+            dim_self = self.return_mat_dim()
+            dim_other = other.return_mat_dim()
+            if dim_self == dim_other:
+                flat_self = self.flatten_mat()
+                flat_other = other.flatten_mat()
+                if flat_self == flat_other:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
+    
+    def __req__(self,other):
+        return self.__eq__(other)
     
     def user_build_matrix(self):
         '''Allows the user to build a matrix through individual value
@@ -123,13 +147,26 @@ class NumMatrix():
         else:
             raise TypeError ("Lists used to build matrices can only contain numbers.")
     
+    def build_from_datamat(self,matrix_list:list):
+        """Builds a matrix directly off a matrix list. Modeled
+            after numpy array form. FORM: fxn([[a,b], [c,d]])"""
+        num_of_rows = len(matrix_list) #Outer list is the row container.
+        if lf.same_dim_rv(matrix_list):
+            num_of_cols = len(matrix_list[0]) #Len of 1st row, i.e. col count.
+            pass_list = []
+            for row in matrix_list:
+                pass_list += row
+            self.build_matrix(num_of_rows,num_of_cols,pass_list)
+        else:
+            raise RuntimeError("The row entries did not match for the given matrix arg.")
+
     def return_mat_dim(self):
         """Returns an ordered pair representing the matrix dimensions."""
         num_rows = self._row_dim
         num_cols = self._col_dim
         return [num_rows,num_cols]
     
-    def build_identity_mat(self,width):
+    def build_identity_mat(self,width:int):
         '''Identity Matrices are only square, so function takes
             in width and returns the identity matrix I_(n)'''
         num_of_terms = width**2
@@ -140,8 +177,8 @@ class NumMatrix():
             identity_matrix[val][val] = 1
         self._matrix = identity_matrix
     
-    def mat_entry_at(self,i_val,j_val):
-        '''Allows for normal matrix index reference to 
+    def mat_entry_at(self,i_val:int,j_val:int):
+        '''Returns entry at ij. Allows for normal matrix index reference to 
             matrix entries.'''
         num_rows,num_cols = self.return_mat_dim()
         if i_val > 0 and j_val > 0:
@@ -181,6 +218,12 @@ class NumMatrix():
             column_list[val].append(self._matrix[val][col_index])
         return column_list
     
+    def retrieve_row(self,row_index:int):
+        """Retrieves a matrix row list given a row_index. Normal 
+            matrix indexing."""
+        row = self._matrix[row_index-1]
+        return row
+
     def matrix_transpose(self):
         '''Performs a transpose on a matrix.'''
         num_rows,num_cols = self.return_mat_dim()
@@ -269,8 +312,8 @@ class NumMatrix():
                 return False
         else:
             raise RuntimeError ("This method can only be used on square matrices.")
-    
-    def minor_mat_of_mat(self,i_val,j_val):
+
+    def minor_mat_of_mat(self,i_val:int,j_val:int):
         '''Returns the minor's matrix of a matrix at a given entry. Entries work on
             python indexing.'''
         num_rows,num_cols = self.return_mat_dim()
@@ -354,10 +397,11 @@ class NumMatrix():
             else:
                 return False
     
-    def simple_determinant(self,in_matrix):
+    def _simple_determinant(self,in_matrix):
         '''Returns a simple determinant or a determinant to
             a diagonal, upper-triangular, or lower-triangular
-            matrix.'''
+            matrix. Performs left to right and down product to 
+            render the determinant.'''
         if isinstance(in_matrix,NumMatrix):
             num_rows,num_cols = in_matrix.return_mat_dim()
             prod = 1
@@ -366,7 +410,13 @@ class NumMatrix():
             return prod
         else:
             raise TypeError ("Can only have NumMatrices passed into it.")
-    
+        
+    def simple_determinant(self):
+        "Receives the in_matrix as the NumMatrix's own matrix and returns"
+        "the diagonal product."
+        prod = self._simple_determinant(self)
+        return prod
+    #Completed
     def matrix_product(self,other):
         """This produces a matrix product between two matrices."""
         if isinstance(other,NumMatrix):
@@ -401,16 +451,189 @@ class NumMatrix():
                 raise RuntimeError ("The two matrices do not have the appropriate dimensions.")
         else:
             raise TypeError ("Matrix product only works between two NumMatrix objects.")
-
-    def set_entry_to(self,i_val,j_val,new_entry):
+    #Completed
+    def set_entry_to(self,i_val:int,j_val:int,new_entry):
         """Takes a new entry and sets the value at position (i_val,j_val) 
         to the new entry. Works in typical matrix indexing manner."""
         num_cols,num_rows = self.return_mat_dim()
         if i_val > 0 and j_val > 0:
-            if i_val < num_cols and j_val < num_rows:
+            if i_val <= num_cols and j_val <= num_rows:
                 self._matrix[i_val-1][j_val-1] = new_entry
             else:
                 raise IndexError ("Indices out of range for matrix")
         else:
             raise IndexError ("Indices out of range for matrix")
-        
+    #Completed
+    def num_zero_rows(self):
+        """Accesses the NumMatrix object and returns the
+            number of zero rows present in the matrix."""
+        access_matrix = self._matrix
+        zero_counter = 0
+        for row in self._matrix:
+            if lf.row_of_zeros(row):
+                zero_counter += 1
+        return zero_counter
+    #Completed
+    def num_zero_cols(self):
+        """Accesses the NumMatrix object and returns the number
+            of zero columns present in the matrix."""
+        copy = self._matrix
+        copy_mat = NumMatrix() 
+        #Disconnects the two from sharing the same memory pointer.
+        copy_mat.build_from_datamat(copy)
+        copy_mat.matrix_transpose()
+        num_zero_cols = copy_mat.num_zero_rows()
+        return num_zero_cols
+    #Completed
+    def all_zeros_at_bottom(self):
+        """Returns True if all the zero rows are at the bottom, and False if not."""
+        num_of_zero_rows = self.num_zero_rows()
+        num_rows,num_cols = self.return_mat_dim()
+        remainder = num_rows - num_of_zero_rows #r = m - Z (Z for zero count)
+        #Range goes through n many entries integers [0,n) or {0,...,(n-1)} and not {n}
+        for num in range(0,remainder): #0 through (r-1) means r rows 
+            if lf.row_of_zeros(self._matrix[num]):
+                #Triggers a False 
+                return False
+        return True
+    #Completed
+    def in_REF(self):
+        """Returns True if matrix is in REF (Row Echelon Form)
+            and False if the matrix is not in REF."""
+        if self.all_zeros_at_bottom(): 
+            #All currently 0 rows are at the bottom.
+            m_rows,n_cols = self.return_mat_dim()
+            z_val = self.num_zero_rows()
+            remainder = m_rows - z_val #m_rows - z = r, [0,(r-1)]
+            if n_cols >= remainder: #At or further right than previous row's pivot.
+                #Now, are they even ordered properly in echelon form?
+                #Note Condition 2 Met
+                pivot_list = []
+                for index in range(0,remainder):
+                    row_list = self._matrix[index] #Accesses i-th row
+                    j_val = lf.first_non_zero_index(row_list)
+                    point_pair = [index,j_val] #i_val and j_val of a pivot position
+                    pivot_list.append(point_pair)
+                prev_pivot_pos = None
+                for pair in pivot_list:
+                    if prev_pivot_pos is not None: #Ignores first row
+                        curr_i,curr_j = pair
+                        prev_i,prev_j = prev_pivot_pos
+                        #compare j's, i's will always differ by 1    
+                        if curr_j < prev_j + 1: #Falls at or to the left of prior j.
+                            return False
+                    prev_pivot_pos = pair
+                #Echelon configuration, NOTE Condition 3 is pseudo-met
+                for pair in pivot_list:
+                    i_val,j_val = pair #extracting pivot pos indices
+                    entry_val = self._matrix[i_val][j_val]
+                    if entry_val != 1:
+                        return False
+                return True #NOTE Condition 1 and 3 fully met
+            else: 
+                #Cannot be a "tall" matrix. Fails the minimum condition that
+                #every subsequent row has its pivot at a j s.t. j_(i+1) = j_(i) + 1
+                #This means rendering the 0 rows is not over, and so it's not REF.
+                return False
+        else:
+            return False
+    #COMPLETED
+    def entries_below_rzeroes(self,i_val:int,j_val:int):
+        """Boolean function that takes an ij in mathematical fashion,
+            and examines all lower entries to see that they are zeros.
+            Starts from position ij."""
+        row_dim,col_dim = self.return_mat_dim()
+        positions = [x for x in range(i_val+1,row_dim+1)]
+        for i_index in positions:
+            if self.mat_entry_at(i_index,j_val) != 0:
+                return False
+        return True #If all the entries below are zeroes.    
+    #Completed
+    def entries_above_rzeroes(self,i_val:int,j_val:int):
+        """Boolean function that takes an ij in mathematical fashion, and
+            examines all upper entries to see that they are zeroes. Starts
+            from the ij position."""
+        positions = [x for x in range(1,i_val)]
+        positions = positions[::-1] #Reversed order
+        for i_index in positions:
+            if self.mat_entry_at(i_index,j_val) != 0:
+                return False
+        return True #If all entries above are zeroes.
+    #Completed
+    def next_nonzero_down_col(self,i_val:int,j_val:int):
+        """Returns the coordinate position of the next entry down the matrix's
+            column that is a non-zero. Starts at ij and has normal matrix indices.
+            Returns None if no subsequent zeroes down the column."""
+        if self.entries_below_rzeroes(i_val,j_val) == False:
+            #If last entry in a column isn't zero, will still trigger True.
+            positions = [x for x in range(i_val+1,self._row_dim+1)]
+            for i_index in positions:
+                if self.mat_entry_at(i_index,j_val) != 0:
+                    return (i_index,j_val)
+        elif self.mat_entry_at(self._row_dim,j_val) != 0:
+            #Only triggers if the last one is non-zero.
+            return (self._row_dim,j_val)
+        else: #Entries below index are all 0's.
+            return None
+    #COMPLETED
+    def next_nonzero_up_col(self,i_val:int,j_val:int):
+        """Returns the coordinate position of the next entry up the matrix's
+            column that is non-zero. Starts at ij and has normal matrix indices.
+            Returns None if no subsequent zeroes up the column."""
+        if self.entries_above_rzeroes(i_val,j_val) == False:
+            positions = [x for x in range(1,i_val)]
+            positions = positions[::-1]
+            for i_index in positions:
+                if self.mat_entry_at(i_index,j_val) != 0:
+                    return (i_index,j_val)
+        elif self.mat_entry_at(1,j_val) != 0:
+            #Triggers only if the last entry is non-zero.
+            return (1,j_val)
+        else:
+            return None
+    #COMPLETED
+    def flatten_mat(self):
+        """Returns the list that defines a matrix."""
+        mat_list = self._matrix
+        pass_list = []
+        for num in range(0,self._row_dim):
+            pass_list += mat_list[num]
+        return pass_list
+    #COMPLETED
+    def square_mat_diag(self):
+        """Returns the list of the square matrix's diagonal entries."""
+        if self.is_square_matrix():
+            diag_ind = [x for x in range(1,self._row_dim+1)]
+            diag_entries = [self.mat_entry_at(x,x) for x in diag_ind]
+            return diag_entries
+        else:
+            raise RuntimeError ("Only can be used on square matrices.")
+    #COMPLETED
+    def cross_product(self,other):
+        """Takes two row matrices and produces the cross product of the two vectors, and 
+            returns the cross product of the two vectors. Only works for 1 x 3 matrices."""
+        comp_of_basis = [1,1,1] # i + j + k
+        if isinstance(other,NumMatrix):
+            a_row,a_col = self.return_mat_dim()
+            b_row,b_col = other.return_mat_dim()
+            if a_row == 1 and a_col == 3 and b_row == 1 and b_col == 3:
+                a_list = self._matrix[0]
+                b_list = other._matrix[0]
+                cross_matrix = NumMatrix()
+                cross_matrix.build_from_datamat([comp_of_basis,a_list,b_list])
+                nums = [x for x in range(0,3)]
+                det_list = []
+                for col_ind in nums:
+                    minor_mat = cross_matrix.minor_mat_of_mat(0,col_ind) #(0,0); (0,1); (0,2)
+                    det_minor_val = minor_mat._two_by_two_det()
+                    if col_ind%2 == 0:
+                        det_list.append(det_minor_val)
+                    else: #Py index is odd, i.e. normal indexing even.
+                        det_list.append(-1*det_minor_val)
+                cross_prod = NumMatrix()
+                cross_prod.build_from_datamat([det_list])
+                return cross_prod
+            else:
+                raise RuntimeError ("The matrices are not of dimensions 1 x 3.")
+        else:
+            raise TypeError ("Both arguments must be of the NumMatrix class.")
